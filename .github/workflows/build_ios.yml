@@ -23,8 +23,19 @@ jobs:
     - name: Install dependencies
       run: flutter pub get
       
+    - name: Update CocoaPods
+      run: sudo gem install cocoapods
+      
+    - name: Update CocoaPods repo
+      run: pod repo update
+      working-directory: ios
+      
+    - name: Install CocoaPods dependencies
+      run: pod install
+      working-directory: ios
+      
     - name: Build iOS app
-      run: flutter build ios --release --no-codesign
+      run: flutter build ios --release --no-codesign --verbose
       
     - name: Upload iOS build artifact
       uses: actions/upload-artifact@v4
