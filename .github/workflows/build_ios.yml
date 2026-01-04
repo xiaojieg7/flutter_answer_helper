@@ -23,12 +23,6 @@ jobs:
     - name: Install dependencies
       run: flutter pub get
       
-    - name: Fix iOS deployment target
-      run: |
-        cd ios
-        echo 'platform :ios, "13.0"' > Podfile
-        flutter precache --ios
-      
     - name: Build iOS app
       run: flutter build ios --release --no-codesign --verbose
       
