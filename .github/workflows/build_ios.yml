@@ -23,16 +23,11 @@ jobs:
     - name: Install dependencies
       run: flutter pub get
       
-    - name: Update CocoaPods
-      run: sudo gem install cocoapods
-      
-    - name: Update CocoaPods repo
-      run: pod repo update
-      working-directory: ios
-      
-    - name: Install CocoaPods dependencies
-      run: pod install
-      working-directory: ios
+    - name: Fix iOS deployment target
+      run: |
+        cd ios
+        echo 'platform :ios, "13.0"' > Podfile
+        flutter precache --ios
       
     - name: Build iOS app
       run: flutter build ios --release --no-codesign --verbose
