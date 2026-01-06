@@ -66,15 +66,21 @@ class _FavoritesPageState extends State<FavoritesPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  question.question,
-                                  style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                                Expanded(
+                                  child: Text(
+                                    question.question,
+                                    style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                  ),
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.star, color: Colors.yellow),
                                   onPressed: () => _unmarkQuestion(question.id!),
+                                  padding: EdgeInsets.zero,
                                 ),
                               ],
                             ),

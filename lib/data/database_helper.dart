@@ -206,4 +206,43 @@ class DatabaseHelper {
     await db.delete(tableQuestions);
     return await db.delete(tableQuestionBanks);
   }
+  
+  // 删除单个题库
+  Future<int> deleteQuestionBank(int bankId) async {
+    Database db = await instance.database;
+    // 开启事务，确保数据一致性
+    return await db.transaction((txn) async {
+      // 1. 获取该题库下的所有题目ID
+      List<Map<String, dynamic>> questionMaps = await txn.query(
+        tableQuestions,
+        columns: ['id'],
+        where: 'bank_id = ?',
+        whereArgs: [bankId],
+      );
+      List<int> questionIds = questionMaps.map((map) => map['id'] as int).toList();
+      
+      // 2. 删除与这些题目相关的用户学习记录
+      if (questionIds.isNotEmpty) {
+        await txn.delete(
+          tableUserRecords,
+          where: 'question_id IN (${List.filled(questionIds.length, '?').join(',')})',
+          whereArgs: questionIds,
+        );
+      }
+      
+      // 3. 删除该题库下的所有题目
+      await txn.delete(
+        tableQuestions,
+        where: 'bank_id = ?',
+        whereArgs: [bankId],
+      );
+      
+      // 4. 删除题库本身
+      return await txn.delete(
+        tableQuestionBanks,
+        where: 'id = ?',
+        whereArgs: [bankId],
+      );
+    });
+  }
 }

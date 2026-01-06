@@ -75,7 +75,7 @@ class _QuestionBankDetailPageState extends State<QuestionBankDetailPage> {
           ? const Center(child: CircularProgressIndicator())
           : _questionBank == null
               ? const Center(child: Text('题库不存在'))
-              : Padding(
+              : SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
