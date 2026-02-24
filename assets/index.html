@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿里云验证码</title>
+    <script src="https://o.alicdn.com/captcha-frontend/aliyunCaptcha/AliyunCaptcha.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+        }
+        #captcha-container {
+            width: 100%;
+            height: 300px;
+            background-color: transparent;
+            position: relative;
+        }
+        .error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: red;
+            text-align: center;
+            padding: 20px;
+        }
+        .loading-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
+            text-align: center;
+        }
+        #captcha-trigger {
+            position: absolute;
+            width: 0;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            border: none;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="captcha-container">
+        <div class="loading-message">加载验证码中...</div>
+    </div>
+    <button id="captcha-trigger"></button>
+    <script type="text/javascript">
+        window.flutterChannel = window.flutterChannel || {
+            postMessage: function(message) {
+                console.log('Flutter通道未初始化，消息已缓存:', message);
+            }
+        };
+        
+        let captchaInstance = null;
+        let isInitialized = false;
+        
+        window.initCaptcha = function() {
+            console.log('开始初始化验证码');
+            console.log('检查initAliyunCaptcha:', typeof window.initAliyunCaptcha);
+            
+            if (isInitialized) {
+                console.log('验证码已初始化，直接显示');
+                showCaptchaPopup();
+                return;
+            }
+            
+            try {
+                if (typeof window.initAliyunCaptcha !== 'function') {
+                    console.error('initAliyunCaptcha未定义');
+                    document.getElementById('captcha-container').innerHTML = '<div class="error-message">验证码SDK未加载</div>';
+                    return;
+                }
+                
+                console.log('初始化阿里云验证码 - popup模式');
+                
+                document.getElementById('captcha-container').innerHTML = '';
+                
+                window.initAliyunCaptcha({
+                    SceneId: "112sdsxg",
+                    region: "cn",
+                    prefix: "79mv0l",
+                    mode: "popup",
+                    element: "#captcha-trigger",
+                    button: "#captcha-trigger",
+                    captchaVerifyCallback: function(captchaVerifyParam) {
+                        console.log('验证成功:', captchaVerifyParam);
+                        
+                        if (window.flutterChannel) {
+                            const message = JSON.stringify({
+                                type: 'captcha_success',
+                                data: captchaVerifyParam
+                            });
+                            console.log('发送消息到Flutter:', message);
+                            window.flutterChannel.postMessage(message);
+                        }
+                    },
+                    onError: function(error) {
+                        console.error('验证码错误:', error);
+                        document.getElementById('captcha-container').innerHTML = '<div class="error-message">验证码加载失败: ' + JSON.stringify(error) + '</div>';
+                    },
+                    onReady: function() {
+                        console.log('验证码准备就绪');
+                        isInitialized = true;
+                        setTimeout(function() {
+                            showCaptchaPopup();
+                        }, 100);
+                    },
+                    onClose: function() {
+                        console.log('验证码弹窗已关闭');
+                        if (window.flutterChannel) {
+                            const message = JSON.stringify({
+                                type: 'captcha_close'
+                            });
+                            console.log('发送关闭消息到Flutter:', message);
+                            window.flutterChannel.postMessage(message);
+                        }
+                    }
+                }, function(instance) {
+                    console.log('验证码初始化完成，实例:', instance);
+                    captchaInstance = instance;
+                    isInitialized = true;
+                    setTimeout(function() {
+                        showCaptchaPopup();
+                    }, 100);
+                });
+            } catch (e) {
+                console.error('初始化验证码异常:', e);
+                console.error('错误堆栈:', e.stack);
+                document.getElementById('captcha-container').innerHTML = '<div class="error-message">验证码初始化失败: ' + e.message + '</div>';
+            }
+        };
+        
+        function showCaptchaPopup() {
+            console.log('尝试显示验证码弹窗');
+            var triggerBtn = document.getElementById('captcha-trigger');
+            if (triggerBtn) {
+                console.log('触发隐藏按钮点击');
+                triggerBtn.click();
+            } else {
+                console.error('找不到触发按钮');
+            }
+        }
+        
+        window.showCaptcha = function() {
+            console.log('显示验证码');
+            if (isInitialized) {
+                showCaptchaPopup();
+            } else {
+                window.initCaptcha();
+            }
+        };
+        
+        window.hideCaptcha = function() {
+            console.log('隐藏验证码');
+        };
+        
+        window.refreshCaptcha = function() {
+            console.log('刷新验证码');
+            if (captchaInstance && typeof captchaInstance.refresh === 'function') {
+                captchaInstance.refresh();
+            }
+        };
+        
+        window.onload = function() {
+            console.log('页面完全加载完成，检查SDK状态');
+            console.log('initAliyunCaptcha类型:', typeof window.initAliyunCaptcha);
+            
+            let checkCount = 0;
+            const maxCheckCount = 100;
+            const checkInterval = setInterval(function() {
+                checkCount++;
+                
+                if (checkCount % 10 === 0) {
+                    console.log('检查次数:', checkCount, 'initAliyunCaptcha类型:', typeof window.initAliyunCaptcha);
+                }
+                
+                if (typeof window.initAliyunCaptcha === 'function') {
+                    console.log('initAliyunCaptcha函数已准备就绪');
+                    clearInterval(checkInterval);
+                } else if (checkCount >= maxCheckCount) {
+                    console.error('initAliyunCaptcha函数等待超时');
+                    clearInterval(checkInterval);
+                    document.getElementById('captcha-container').innerHTML = '<div class="error-message">验证码SDK初始化超时</div>';
+                }
+            }, 100);
+        };
+    </script>
+</body>
+</html>
