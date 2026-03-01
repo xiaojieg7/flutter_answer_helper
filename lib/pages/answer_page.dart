@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../data/database_helper.dart';
+import '../data/database_service_factory.dart';
 import '../data/models/question.dart';
 import '../data/models/user_record.dart';
 
@@ -49,7 +49,8 @@ class _AnswerPageState extends State<AnswerPage> {
       _isLoading = true;
     });
     try {
-      _questions = await DatabaseHelper.instance.getQuestionsByBankId(widget.bankId);
+      final databaseService = DatabaseServiceFactory.getInstance();
+      _questions = await databaseService.getQuestionsByBankId(widget.bankId);
       
       if (widget.shuffle) {
         _currentQuestions = [..._questions]..shuffle(Random());
@@ -141,7 +142,8 @@ class _AnswerPageState extends State<AnswerPage> {
       userAnswer: userAnswer,
     );
 
-    await DatabaseHelper.instance.insertOrUpdateUserRecord(record);
+    final databaseService = DatabaseServiceFactory.getInstance();
+    await databaseService.insertOrUpdateUserRecord(record);
   }
 
   // 下一题
@@ -233,7 +235,8 @@ class _AnswerPageState extends State<AnswerPage> {
   void _toggleMark() {
     if (_currentQuestionIndex < _currentQuestions.length) {
       int questionId = _currentQuestions[_currentQuestionIndex].id!;
-      DatabaseHelper.instance.toggleMarkQuestion(questionId, !_getIsMarked());
+      final databaseService = DatabaseServiceFactory.getInstance();
+      databaseService.toggleMarkQuestion(questionId, !_getIsMarked());
     }
   }
 

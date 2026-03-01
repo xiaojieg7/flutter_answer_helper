@@ -7,6 +7,9 @@ import '../pages/wrong_questions_page.dart';
 import '../pages/favorites_page.dart';
 import '../pages/settings_page.dart';
 import '../pages/subject_detail_page.dart';
+import '../pages/user_page.dart';
+import '../pages/login_page.dart';
+import '../pages/register_page.dart';
 import '../layout/scaffold_with_bottom_tab.dart';
 
 class AppRouter {
@@ -123,7 +126,37 @@ class AppRouter {
               swipeDirection: state.uri.queryParameters['swipe'],
             ),
           ),
+          // 用户页面
+          GoRoute(
+            path: '/user',
+            name: 'user',
+            pageBuilder: (context, state) => _buildPageWithSwipeDirection(
+              key: state.pageKey,
+              child: const UserPage(),
+              swipeDirection: state.uri.queryParameters['swipe'],
+            ),
+          ),
         ],
+      ),
+      // 登录页面
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        pageBuilder: (context, state) => _buildPageWithSwipeDirection(
+          key: state.pageKey,
+          child: const LoginPage(),
+          swipeDirection: state.uri.queryParameters['swipe'],
+        ),
+      ),
+      // 注册页面
+      GoRoute(
+        path: '/register',
+        name: 'register',
+        pageBuilder: (context, state) => _buildPageWithSwipeDirection(
+          key: state.pageKey,
+          child: const RegisterPage(),
+          swipeDirection: state.uri.queryParameters['swipe'],
+        ),
       ),
     ],
   );

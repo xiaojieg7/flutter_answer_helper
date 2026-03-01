@@ -40,4 +40,25 @@ class QuestionBank {
       scoreMode: map['score_mode'] ?? 'average',
     );
   }
+
+  // 复制方法，用于创建新实例
+  QuestionBank copyWith({
+    int? id,
+    String? title,
+    String? subject,
+    String? difficulty,
+    int? totalQuestions,
+    String? createdDate,
+    String? scoreMode,
+  }) {
+    return QuestionBank(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      subject: subject ?? this.subject,
+      difficulty: difficulty ?? this.difficulty,
+      totalQuestions: totalQuestions ?? this.totalQuestions,
+      createdDate: createdDate ?? this.createdDate,
+      scoreMode: scoreMode ?? this.scoreMode,
+    );
+  }
 }

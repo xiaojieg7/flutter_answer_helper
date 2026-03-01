@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../data/database_helper.dart';
+import '../data/database_service_factory.dart';
 import '../data/models/question_bank.dart';
 import '../data/models/question.dart';
 
@@ -31,12 +31,13 @@ class _QuestionBankDetailPageState extends State<QuestionBankDetailPage> {
       _isLoading = true;
     });
     try {
+      final databaseService = DatabaseServiceFactory.getInstance();
       // 获取题库所有题库，找到对应的题库
-      final banks = await DatabaseHelper.instance.getQuestionBanks();
+      final banks = await databaseService.getQuestionBanks();
       _questionBank = banks.firstWhere((bank) => bank.id == widget.bankId);
 
       // 获取该题库下的所有题目
-      _questions = await DatabaseHelper.instance.getQuestionsByBankId(widget.bankId);
+      _questions = await databaseService.getQuestionsByBankId(widget.bankId);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('加载题库详情失败: $e')),

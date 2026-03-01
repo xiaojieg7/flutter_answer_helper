@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../data/database_helper.dart';
+import '../data/database_service_factory.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -18,7 +18,8 @@ class SettingsPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
-              await DatabaseHelper.instance.clearAllData();
+              final databaseService = DatabaseServiceFactory.getInstance();
+              await databaseService.clearAllData();
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('缓存已清除')),

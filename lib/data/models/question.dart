@@ -50,4 +50,29 @@ class Question {
       score: map['score'] ?? 1,
     );
   }
+
+  // 复制方法，用于创建新实例
+  Question copyWith({
+    int? id,
+    int? bankId,
+    int? originalId,
+    String? type,
+    String? question,
+    Map<String, String>? options,
+    dynamic correctAnswer,
+    String? explanation,
+    int? score,
+  }) {
+    return Question(
+      id: id ?? this.id,
+      bankId: bankId ?? this.bankId,
+      originalId: originalId ?? this.originalId,
+      type: type ?? this.type,
+      question: question ?? this.question,
+      options: options ?? this.options,
+      correctAnswer: correctAnswer ?? this.correctAnswer,
+      explanation: explanation ?? this.explanation,
+      score: score ?? this.score,
+    );
+  }
 }

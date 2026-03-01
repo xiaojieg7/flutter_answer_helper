@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../data/database_helper.dart';
+import '../data/database_service_factory.dart';
 import '../data/models/question.dart';
 
 class WrongQuestionsPage extends StatefulWidget {
@@ -25,7 +25,8 @@ class _WrongQuestionsPageState extends State<WrongQuestionsPage> {
       _isLoading = true;
     });
     try {
-      _wrongQuestions = await DatabaseHelper.instance.getWrongQuestions();
+      final databaseService = DatabaseServiceFactory.getInstance();
+      _wrongQuestions = await databaseService.getWrongQuestions();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('加载错题失败: $e')),
@@ -39,7 +40,8 @@ class _WrongQuestionsPageState extends State<WrongQuestionsPage> {
 
   // 标记错题为已掌握
   void _markAsCorrect(int questionId) {
-    DatabaseHelper.instance.markQuestionAsCorrect(questionId);
+    final databaseService = DatabaseServiceFactory.getInstance();
+    databaseService.markQuestionAsCorrect(questionId);
     _loadWrongQuestions();
   }
 

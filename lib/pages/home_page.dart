@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
-import '../data/database_helper.dart';
+import '../data/database_service_factory.dart';
 import '../data/models/question_bank.dart';
 import '../data/models/question.dart';
 import '../utils/json_parser.dart';
@@ -30,7 +32,8 @@ class _HomePageState extends State<HomePage> {
       _isLoading = true;
     });
     try {
-      final banks = await DatabaseHelper.instance.getQuestionBanks();
+      final databaseService = DatabaseServiceFactory.getInstance();
+      final banks = await databaseService.getQuestionBanks();
       setState(() {
         _questionBanks = banks;
       });
@@ -59,10 +62,21 @@ class _HomePageState extends State<HomePage> {
       }
 
       PlatformFile file = result.files.first;
-      String filePath = file.path!;
+      String jsonString;
 
-      // 读取文件内容
-      String jsonString = await File(filePath).readAsString();
+      // 跨平台文件读取
+      if (kIsWeb) {
+        // Web平台：使用bytes属性并确保UTF-8编码
+        if (file.bytes != null) {
+          jsonString = utf8.decode(file.bytes!);
+        } else {
+          throw Exception('无法读取文件内容');
+        }
+      } else {
+        // 移动平台：使用path属性并指定UTF-8编码
+        String filePath = file.path!;
+        jsonString = await File(filePath).readAsString(encoding: utf8);
+      }
 
       // 插入数据库
       await _insertQuestionBank(jsonString);
@@ -85,8 +99,11 @@ class _HomePageState extends State<HomePage> {
     // 解析JSON
     final (questionBank, questions) = await JsonParser.parseJson(jsonString, 0);
 
+    // 获取数据库服务实例
+    final databaseService = DatabaseServiceFactory.getInstance();
+
     // 插入题库元数据
-    int bankId = await DatabaseHelper.instance.insertQuestionBank(questionBank);
+    int bankId = await databaseService.insertQuestionBank(questionBank);
 
     // 更新题目所属的bankId
     List<Question> updatedQuestions = questions.map((q) {
@@ -102,7 +119,7 @@ class _HomePageState extends State<HomePage> {
     }).toList();
 
     // 批量插入题目
-    await DatabaseHelper.instance.batchInsertQuestions(updatedQuestions);
+    await databaseService.batchInsertQuestions(updatedQuestions);
   }
 
   // 获取所有科目列表（去重）

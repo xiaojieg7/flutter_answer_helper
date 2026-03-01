@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../data/database_helper.dart';
+import '../data/database_service_factory.dart';
 import '../data/models/question_bank.dart';
 
 class SubjectDetailPage extends StatefulWidget {
@@ -28,7 +28,8 @@ class _SubjectDetailPageState extends State<SubjectDetailPage> {
       _isLoading = true;
     });
     try {
-      final allBanks = await DatabaseHelper.instance.getQuestionBanks();
+      final databaseService = DatabaseServiceFactory.getInstance();
+      final allBanks = await databaseService.getQuestionBanks();
       setState(() {
         _subjectQuestionBanks = allBanks.where((bank) => bank.subject == widget.subject).toList();
       });
@@ -77,7 +78,8 @@ class _SubjectDetailPageState extends State<SubjectDetailPage> {
                 
                 // 执行删除操作
                 try {
-                  await DatabaseHelper.instance.deleteQuestionBank(bankId);
+                  final databaseService = DatabaseServiceFactory.getInstance();
+                  await databaseService.deleteQuestionBank(bankId);
                   
                   // 重新加载题库列表
                   await _loadSubjectQuestionBanks();

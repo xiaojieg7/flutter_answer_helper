@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../data/database_helper.dart';
+import '../data/database_service_factory.dart';
 import '../data/models/question.dart';
 
 class FavoritesPage extends StatefulWidget {
@@ -25,10 +25,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
       _isLoading = true;
     });
     try {
-      _favorites = await DatabaseHelper.instance.getMarkedQuestions();
+      final databaseService = DatabaseServiceFactory.getInstance();
+      _favorites = await databaseService.getMarkedQuestions();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('加载收藏题目失败: $e')),
+        SnackBar(content: Text('加载收藏失败: $e')),
       );
     } finally {
       setState(() {
@@ -39,7 +40,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   // 取消收藏
   void _unmarkQuestion(int questionId) {
-    DatabaseHelper.instance.toggleMarkQuestion(questionId, false);
+    final databaseService = DatabaseServiceFactory.getInstance();
+    databaseService.toggleMarkQuestion(questionId, false);
     _loadFavorites();
   }
 

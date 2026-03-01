@@ -21,15 +21,15 @@ class _ScaffoldWithBottomTabState extends State<ScaffoldWithBottomTab> {
       label: '收藏',
     ),
     const BottomNavigationBarItem(
-      icon: Icon(Icons.settings),
-      label: '设置',
+      icon: Icon(Icons.person),
+      label: '我的',
     ),
   ];
 
   final List<String> _routes = [
     '/',
     '/favorites',
-    '/settings',
+    '/user',
   ];
 
   bool _shouldShowBottomBar(BuildContext context) {

@@ -53,4 +53,23 @@ class UserRecord {
       userAnswer: userAnswer,
     );
   }
+
+  // 复制方法，用于创建新实例
+  UserRecord copyWith({
+    int? id,
+    int? questionId,
+    bool? isIncorrect,
+    bool? isMarked,
+    String? lastAttempted,
+    dynamic userAnswer,
+  }) {
+    return UserRecord(
+      id: id ?? this.id,
+      questionId: questionId ?? this.questionId,
+      isIncorrect: isIncorrect ?? this.isIncorrect,
+      isMarked: isMarked ?? this.isMarked,
+      lastAttempted: lastAttempted ?? this.lastAttempted,
+      userAnswer: userAnswer ?? this.userAnswer,
+    );
+  }
 }

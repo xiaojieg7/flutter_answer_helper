@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'routes/app_router.dart';
+import 'data/database_service_factory.dart';
+import 'data/user_service_factory.dart';
 
-void main() {
+void main() async {
+  // 确保Flutter绑定完全初始化
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // 初始化数据库服务
+  await DatabaseServiceFactory.getInstance().initialize();
+  // 初始化用户服务
+  await UserServiceFactory.getInstance().initialize();
   runApp(const MyApp());
 }
 
