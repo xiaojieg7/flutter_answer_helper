@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../data/user_service_factory.dart';
+import '../api/api_service.dart';
+import '../api/exceptions.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -31,29 +32,33 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       try {
-        final userService = UserServiceFactory.getInstance();
-        final user = await userService.login(
-          _emailController.text.trim(),
-          _passwordController.text.trim(),
+        await ApiService.login(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
         );
 
-        if (user != null) {
-          // 登录成功，跳转到我的页面
+        if (mounted) {
           context.go('/user');
-        } else {
-          // 登录失败
-          setState(() {
-            _errorMessage = '邮箱或密码错误';
-          });
+        }
+      } on DeviceNotTrustException catch (e) {
+        if (mounted) {
+          context.push(
+            '/device-verification',
+            extra: {'email': e.email.isNotEmpty ? e.email : _emailController.text.trim()},
+          );
         }
       } catch (e) {
-        setState(() {
-          _errorMessage = '登录失败：$e';
-        });
+        if (mounted) {
+          setState(() {
+            _errorMessage = '登录失败：$e';
+          });
+        }
       } finally {
-        setState(() {
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     }
   }
@@ -62,7 +67,13 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('登录'),
+        title: const Text(
+          '登录',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

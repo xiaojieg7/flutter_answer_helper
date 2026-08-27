@@ -65,7 +65,21 @@ class _QuestionBankDetailPageState extends State<QuestionBankDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: _questionBank != null ? Text(_questionBank!.title) : const Text('题库详情'),
+        title: _questionBank != null 
+            ? Text(
+                _questionBank!.title,
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+            : const Text(
+                '题库详情',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
         // 添加返回按钮
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),

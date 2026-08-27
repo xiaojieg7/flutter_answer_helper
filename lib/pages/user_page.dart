@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../api/auth_service.dart';
 import '../data/user_service_factory.dart';
 import '../data/models/user.dart';
 
@@ -12,7 +13,7 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage> {
   User? _currentUser;
-  bool _isLoading = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -20,19 +21,21 @@ class _UserPageState extends State<UserPage> {
     _loadCurrentUser();
   }
 
-  Future<void> _loadCurrentUser() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final userService = UserServiceFactory.getInstance();
-      _currentUser = await userService.getCurrentUser();
-    } catch (e) {
-      print('加载用户信息失败：$e');
-    } finally {
+  void _loadCurrentUser() {
+    if (AuthService.isLoggedIn && AuthService.currentUser != null) {
+      final authInfo = AuthService.currentUser!;
       setState(() {
-        _isLoading = false;
+        _currentUser = User(
+          id: 0,
+          username: authInfo.username,
+          email: authInfo.email,
+          password: '',
+          createdAt: DateTime.now(),
+        );
+      });
+    } else {
+      setState(() {
+        _currentUser = null;
       });
     }
   }
@@ -58,7 +61,13 @@ class _UserPageState extends State<UserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('我的'),
+        title: const Text(
+          '我的',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

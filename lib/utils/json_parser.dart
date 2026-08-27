@@ -5,8 +5,9 @@ import '../data/models/question.dart';
 class JsonParser {
   // 验证JSON结构
   static bool validateJsonStructure(Map<String, dynamic> json) {
-    // 检查schema_version字段
-    if (!json.containsKey('schema_version') || json['schema_version'] != '1.0') {
+    // 检查schema_version字段：2.0为当前格式，兼容导入1.0旧题库
+    if (!json.containsKey('schema_version') ||
+        (json['schema_version'] != '2.0' && json['schema_version'] != '1.0')) {
       return false;
     }
 
@@ -79,6 +80,8 @@ class JsonParser {
           correctAnswer: questionJson['correct_answer'],
           explanation: questionJson['explanation'],
           score: questionJson.containsKey('score') ? questionJson['score'] : 1,
+          // 配图字段可选：新格式包含image_base64时读取，旧格式无此字段则置空
+          imageBase64: questionJson.containsKey('image_base64') ? questionJson['image_base64'] : null,
         );
 
         questions.add(question);

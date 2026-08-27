@@ -1,41 +1,63 @@
+// Web implementation of user service
 import '../user_service.dart';
 import '../models/user.dart';
+import '../../api/auth_service.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class UserServiceImpl {
+  static UserService? _instance;
+
+  static UserService getInstance() {
+    if (_instance == null) {
+      _instance = WebUserService();
+    }
+    return _instance!;
+  }
+
+  static void setInstance(UserService service) {
+    _instance = service;
+  }
+
+  static void resetInstance() {
+    _instance = null;
+  }
+}
 
 class WebUserService implements UserService {
-  // 使用localStorage存储用户数据
   static const String _userKey = 'current_user';
-  static const String _usersKey = 'users';
+  SharedPreferences? _prefs;
 
   @override
   Future<void> initialize() async {
-    // Web平台初始化操作
-    // localStorage不需要特殊初始化
+    _prefs = await SharedPreferences.getInstance();
   }
 
   @override
   Future<User> register(String username, String email, String password) async {
-    // 模拟注册，实际项目中应该调用API
     final user = User(
       id: DateTime.now().millisecondsSinceEpoch,
       username: username,
       email: email,
-      password: password, // 实际项目中应该加密存储密码
+      password: password,
       createdAt: DateTime.now(),
     );
-
-    // 存储用户信息到localStorage
-    _saveUser(user);
-
+    await _saveCurrentUser(user);
     return user;
   }
 
   @override
   Future<User?> login(String email, String password) async {
-    // 模拟登录，实际项目中应该调用API
-    final user = _getUserByEmail(email);
-    if (user != null && user.password == password) {
-      // 登录成功，存储当前用户
-      _saveCurrentUser(user);
+    final userInfo = AuthService.currentUser;
+    if (userInfo != null) {
+      final user = User(
+        id: DateTime.now().millisecondsSinceEpoch,
+        username: userInfo.username,
+        email: userInfo.email,
+        password: '',
+        createdAt: DateTime.now(),
+      );
+      await _saveCurrentUser(user);
       return user;
     }
     return null;
@@ -43,76 +65,56 @@ class WebUserService implements UserService {
 
   @override
   Future<User?> getCurrentUser() async {
-    // 从localStorage获取当前用户
-    return _getCurrentUser();
+    final authInfo = AuthService.currentUser;
+    if (authInfo != null) {
+      return User(
+        id: DateTime.now().millisecondsSinceEpoch,
+        username: authInfo.username,
+        email: authInfo.email,
+        password: '',
+        createdAt: DateTime.now(),
+      );
+    }
+    return _getCurrentUserFromPrefs();
   }
 
   @override
   Future<void> logout() async {
-    // 清除当前用户信息
-    _clearCurrentUser();
+    await AuthService.logout();
+    await _clearCurrentUser();
   }
 
   @override
   Future<bool> isLoggedIn() async {
-    // 检查是否有当前用户
-    return _getCurrentUser() != null;
+    return AuthService.isLoggedIn;
   }
 
   @override
   Future<User> updateUser(User user) async {
-    // 模拟更新用户信息，实际项目中应该调用API
-    _updateUser(user);
+    await _saveCurrentUser(user);
     return user;
   }
 
   @override
   Future<void> deleteUser(int userId) async {
-    // 模拟删除用户，实际项目中应该调用API
-    _deleteUser(userId);
+    await _clearCurrentUser();
   }
 
-  // 私有方法：保存用户到localStorage
-  void _saveUser(User user) {
-    // 实际项目中应该使用localStorage API
-    // 这里仅做模拟
+  Future<void> _saveCurrentUser(User user) async {
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    await prefs.setString(_userKey, jsonEncode(user.toMap()));
   }
 
-  // 私有方法：根据邮箱获取用户
-  User? _getUserByEmail(String email) {
-    // 实际项目中应该从localStorage读取
-    // 这里仅做模拟
+  User? _getCurrentUserFromPrefs() {
+    final json = _prefs?.getString(_userKey);
+    if (json != null) {
+      return User.fromMap(jsonDecode(json));
+    }
     return null;
   }
 
-  // 私有方法：保存当前用户
-  void _saveCurrentUser(User user) {
-    // 实际项目中应该使用localStorage API
-    // 这里仅做模拟
-  }
-
-  // 私有方法：获取当前用户
-  User? _getCurrentUser() {
-    // 实际项目中应该从localStorage读取
-    // 这里仅做模拟
-    return null;
-  }
-
-  // 私有方法：清除当前用户
-  void _clearCurrentUser() {
-    // 实际项目中应该使用localStorage API
-    // 这里仅做模拟
-  }
-
-  // 私有方法：更新用户
-  void _updateUser(User user) {
-    // 实际项目中应该使用localStorage API
-    // 这里仅做模拟
-  }
-
-  // 私有方法：删除用户
-  void _deleteUser(int userId) {
-    // 实际项目中应该使用localStorage API
-    // 这里仅做模拟
+  Future<void> _clearCurrentUser() async {
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    await prefs.remove(_userKey);
   }
 }

@@ -163,6 +163,33 @@ class WebDatabaseService implements DatabaseService {
   }
 
   @override
+  Future<int> updateQuestionBank(QuestionBank bank) async {
+    final index = _questionBanks.indexWhere((b) => b.id == bank.id);
+    if (index == -1) return 0;
+    _questionBanks[index] = bank;
+    _saveToLocalStorage();
+    return 1;
+  }
+
+  @override
+  Future<int> updateQuestion(Question question) async {
+    final index = _questions.indexWhere((q) => q.id == question.id);
+    if (index == -1) return 0;
+    _questions[index] = question;
+    _saveToLocalStorage();
+    return 1;
+  }
+
+  @override
+  Future<int> deleteQuestion(int questionId) async {
+    final existed = _questions.any((q) => q.id == questionId);
+    _questions.removeWhere((q) => q.id == questionId);
+    _userRecords.removeWhere((r) => r.questionId == questionId);
+    _saveToLocalStorage();
+    return existed ? 1 : 0;
+  }
+
+  @override
   Future<void> batchInsertQuestions(List<Question> questions) async {
     for (var question in questions) {
       final id = _getNextId('questions');
@@ -216,16 +243,41 @@ class WebDatabaseService implements DatabaseService {
   }
 
   @override
+  Future<UserRecord?> getUserRecord(int questionId) async {
+    return _userRecords.cast<UserRecord?>().firstWhere(
+      (r) => r?.questionId == questionId,
+      orElse: () => null,
+    );
+  }
+
+  @override
   Future<int> toggleMarkQuestion(int questionId, bool isMarked) async {
+    print('WebDatabaseService.toggleMarkQuestion: questionId=$questionId, isMarked=$isMarked');
     final recordIndex = _userRecords.indexWhere((r) => r.questionId == questionId);
+    
     if (recordIndex != -1) {
+      print('找到现有记录，更新收藏状态');
       _userRecords[recordIndex] = _userRecords[recordIndex].copyWith(
         isMarked: isMarked,
       );
       _saveToLocalStorage();
       return 1;
+    } else {
+      print('未找到现有记录，创建新记录');
+      final newRecord = UserRecord(
+        id: _nextIds['user_records']!,
+        questionId: questionId,
+        isIncorrect: false,
+        isMarked: isMarked,
+        lastAttempted: DateTime.now().toString(),
+        userAnswer: null,
+      );
+      _userRecords.add(newRecord);
+      _nextIds['user_records'] = _nextIds['user_records']! + 1;
+      _saveToLocalStorage();
+      _saveNextIds();
+      return 1;
     }
-    return 0;
   }
 
   @override

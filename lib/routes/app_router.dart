@@ -5,11 +5,16 @@ import '../pages/question_bank_detail.dart';
 import '../pages/answer_page.dart';
 import '../pages/wrong_questions_page.dart';
 import '../pages/favorites_page.dart';
+import '../pages/favorites_bank_detail_page.dart';
 import '../pages/settings_page.dart';
 import '../pages/subject_detail_page.dart';
 import '../pages/user_page.dart';
 import '../pages/login_page.dart';
 import '../pages/register_page.dart';
+import '../pages/email_verification_page.dart';
+import '../pages/device_verification_page.dart';
+import '../pages/question_bank_edit_page.dart';
+import '../pages/question_edit_page.dart';
 import '../layout/scaffold_with_bottom_tab.dart';
 
 class AppRouter {
@@ -54,6 +59,38 @@ class AppRouter {
                       swipeDirection: state.uri.queryParameters['swipe'],
                     ),
                   ),
+                  // 编辑题库页
+                  GoRoute(
+                    path: 'edit',
+                    name: 'bankEdit',
+                    pageBuilder: (context, state) => _buildPageWithSwipeDirection(
+                      key: state.pageKey,
+                      child: QuestionBankEditPage(
+                        bankId: int.parse(state.pathParameters['id']!),
+                      ),
+                      swipeDirection: state.uri.queryParameters['swipe'],
+                    ),
+                    routes: [
+                      // 题目编辑页（编辑/新增）
+                      GoRoute(
+                        path: 'question',
+                        name: 'questionEdit',
+                        pageBuilder: (context, state) {
+                          final questionIdStr = state.uri.queryParameters['questionId'];
+                          return _buildPageWithSwipeDirection(
+                            key: state.pageKey,
+                            child: QuestionEditPage(
+                              bankId: int.parse(state.pathParameters['id']!),
+                              questionId: questionIdStr != null
+                                  ? int.parse(questionIdStr)
+                                  : null,
+                            ),
+                            swipeDirection: state.uri.queryParameters['swipe'],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ],
               ),
               // 科目详情页
@@ -89,6 +126,38 @@ class AppRouter {
                           ),
                           swipeDirection: state.uri.queryParameters['swipe'],
                         ),
+                      ),
+                      // 编辑题库页
+                      GoRoute(
+                        path: 'edit',
+                        name: 'subjectBankEdit',
+                        pageBuilder: (context, state) => _buildPageWithSwipeDirection(
+                          key: state.pageKey,
+                          child: QuestionBankEditPage(
+                            bankId: int.parse(state.pathParameters['id']!),
+                          ),
+                          swipeDirection: state.uri.queryParameters['swipe'],
+                        ),
+                        routes: [
+                          // 题目编辑页（编辑/新增）
+                          GoRoute(
+                            path: 'question',
+                            name: 'subjectQuestionEdit',
+                            pageBuilder: (context, state) {
+                              final questionIdStr = state.uri.queryParameters['questionId'];
+                              return _buildPageWithSwipeDirection(
+                                key: state.pageKey,
+                                child: QuestionEditPage(
+                                  bankId: int.parse(state.pathParameters['id']!),
+                                  questionId: questionIdStr != null
+                                      ? int.parse(questionIdStr)
+                                      : null,
+                                ),
+                                swipeDirection: state.uri.queryParameters['swipe'],
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -138,6 +207,19 @@ class AppRouter {
           ),
         ],
       ),
+      // 收藏详情页（shell 外全屏展示，无底部导航）
+      GoRoute(
+        path: '/favorites-detail/:bankId',
+        name: 'favoritesBankDetail',
+        pageBuilder: (context, state) => _buildPageWithSwipeDirection(
+          key: state.pageKey,
+          child: FavoritesBankDetailPage(
+            bankId: int.parse(state.pathParameters['bankId']!),
+            bankTitle: state.uri.queryParameters['title'] ?? '收藏',
+          ),
+          swipeDirection: state.uri.queryParameters['swipe'],
+        ),
+      ),
       // 登录页面
       GoRoute(
         path: '/login',
@@ -157,6 +239,38 @@ class AppRouter {
           child: const RegisterPage(),
           swipeDirection: state.uri.queryParameters['swipe'],
         ),
+      ),
+      // 邮箱验证页面
+      GoRoute(
+        path: '/email-verification',
+        name: 'emailVerification',
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, String>;
+          return _buildPageWithSwipeDirection(
+            key: state.pageKey,
+            child: EmailVerificationPage(
+              username: extra['username']!,
+              email: extra['email']!,
+              password: extra['password']!,
+            ),
+            swipeDirection: state.uri.queryParameters['swipe'],
+          );
+        },
+      ),
+      // 设备验证页面
+      GoRoute(
+        path: '/device-verification',
+        name: 'deviceVerification',
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, String>;
+          return _buildPageWithSwipeDirection(
+            key: state.pageKey,
+            child: DeviceVerificationPage(
+              email: extra['email']!,
+            ),
+            swipeDirection: state.uri.queryParameters['swipe'],
+          );
+        },
       ),
     ],
   );

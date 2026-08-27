@@ -11,14 +11,18 @@ abstract class DatabaseService {
   Future<int> insertQuestionBank(QuestionBank bank);
   Future<List<QuestionBank>> getQuestionBanks();
   Future<int> deleteQuestionBank(int bankId);
+  Future<int> updateQuestionBank(QuestionBank bank);
 
   // 题目相关操作
   Future<int> insertQuestion(Question question);
   Future<void> batchInsertQuestions(List<Question> questions);
   Future<List<Question>> getQuestionsByBankId(int bankId);
+  Future<int> updateQuestion(Question question);
+  Future<int> deleteQuestion(int questionId);
 
   // 用户记录相关操作
   Future<int> insertOrUpdateUserRecord(UserRecord record);
+  Future<UserRecord?> getUserRecord(int questionId);
   Future<List<Question>> getWrongQuestions();
   Future<List<Question>> getMarkedQuestions();
   Future<int> toggleMarkQuestion(int questionId, bool isMarked);

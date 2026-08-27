@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import '../data/captcha_service.dart';
 import '../data/captcha_service_factory.dart';
 
 class CaptchaWebview extends StatefulWidget {
-  final Function(Map<String, String>) onCaptchaCompleted;
-  final Function onCaptchaError;
+  final Function(String) onCaptchaCompleted;
+  final Function(CaptchaRefreshReason) onCaptchaRefresh;
+  final Function(String) onError;
 
   const CaptchaWebview({
     Key? key,
     required this.onCaptchaCompleted,
-    required this.onCaptchaError,
+    required this.onCaptchaRefresh,
+    required this.onError,
   }) : super(key: key);
 
   @override
@@ -28,7 +31,8 @@ class _CaptchaWebviewState extends State<CaptchaWebview> {
   Widget build(BuildContext context) {
     return _captchaService.buildCaptchaWidget(
       onCaptchaCompleted: widget.onCaptchaCompleted,
-      onCaptchaError: widget.onCaptchaError,
+      onCaptchaRefresh: widget.onCaptchaRefresh,
+      onError: widget.onError,
     );
   }
 }

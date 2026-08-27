@@ -1,23 +1,23 @@
-import 'package:flutter/foundation.dart';
 import 'captcha_service.dart';
-import 'platform_captcha_services/android_captcha_service.dart';
-import 'platform_captcha_services/web_captcha_service.dart';
+import 'captcha_service_stub.dart'
+    if (dart.library.html) 'captcha_service_web.dart'
+    if (dart.library.io) 'captcha_service_mobile.dart';
 
 class CaptchaServiceFactory {
   static CaptchaService? _instance;
 
   static CaptchaService getInstance() {
-    if (_instance == null) {
-      if (kIsWeb) {
-        _instance = WebCaptchaService();
-      } else {
-        _instance = AndroidCaptchaService();
-      }
-    }
+    _instance ??= createCaptchaService();
     return _instance!;
   }
-
+  
   static void reset() {
+    _instance?.dispose();
+    _instance = null;
+  }
+  
+  static void dispose() {
+    _instance?.dispose();
     _instance = null;
   }
 }

@@ -1,25 +1,16 @@
-import 'package:flutter/foundation.dart';
 import 'user_service.dart';
-import 'platform_user_services/android_user_service.dart';
-import 'platform_user_services/web_user_service.dart';
+import 'platform_user_services/user_service_stub.dart'
+    if (dart.library.io) 'platform_user_services/android_user_service.dart'
+    if (dart.library.html) 'platform_user_services/web_user_service.dart';
 
 class UserServiceFactory {
-  static UserService? _instance;
-
   UserServiceFactory._();
 
   static UserService getInstance() {
-    if (_instance == null) {
-      if (kIsWeb) {
-        _instance = WebUserService();
-      } else {
-        _instance = AndroidUserService();
-      }
-    }
-    return _instance!;
+    return UserServiceImpl.getInstance();
   }
 
   static void resetInstance() {
-    _instance = null;
+    UserServiceImpl.resetInstance();
   }
 }

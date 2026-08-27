@@ -10,6 +10,7 @@ class Question {
   dynamic correctAnswer;
   String explanation;
   int score;
+  String? imageBase64; // 题目配图（单张），base64编码直接存入数据库
 
   Question({
     this.id,
@@ -21,6 +22,7 @@ class Question {
     required this.correctAnswer,
     required this.explanation,
     this.score = 1,
+    this.imageBase64,
   });
 
   Map<String, dynamic> toMap() {
@@ -34,6 +36,7 @@ class Question {
       'correct_answer': jsonEncode(correctAnswer),
       'explanation': explanation,
       'score': score,
+      'image_base64': imageBase64,
     };
   }
 
@@ -48,6 +51,7 @@ class Question {
       correctAnswer: jsonDecode(map['correct_answer']),
       explanation: map['explanation'],
       score: map['score'] ?? 1,
+      imageBase64: map['image_base64'],
     );
   }
 
@@ -62,6 +66,7 @@ class Question {
     dynamic correctAnswer,
     String? explanation,
     int? score,
+    String? imageBase64,
   }) {
     return Question(
       id: id ?? this.id,
@@ -73,6 +78,7 @@ class Question {
       correctAnswer: correctAnswer ?? this.correctAnswer,
       explanation: explanation ?? this.explanation,
       score: score ?? this.score,
+      imageBase64: imageBase64 ?? this.imageBase64,
     );
   }
 }

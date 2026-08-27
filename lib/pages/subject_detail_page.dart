@@ -44,6 +44,51 @@ class _SubjectDetailPageState extends State<SubjectDetailPage> {
     }
   }
   
+  // 显示长按题库的操作菜单（编辑/删除）
+  Future<void> _showBankActionSheet(int bankId, String bankTitle) async {
+    return showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  bankTitle,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.edit, color: Color(0xFF4A90E2)),
+                title: const Text('编辑题库'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  // 跳转到编辑题库页
+                  this.context.go('/bank/$bankId/edit');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('删除题库'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _showDeleteConfirmDialog(bankId, bankTitle);
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   // 显示删除确认对话框
   Future<void> _showDeleteConfirmDialog(int bankId, String bankTitle) async {
     return showDialog<void>(
@@ -106,7 +151,13 @@ class _SubjectDetailPageState extends State<SubjectDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.subject}题库'),
+        title: Text(
+          '${widget.subject}题库',
+          style: const TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         // 添加返回按钮
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -137,8 +188,8 @@ class _SubjectDetailPageState extends State<SubjectDetailPage> {
                           context.go('/bank/${bank.id}');
                         },
                         onLongPress: () {
-                          // 长按删除题库
-                          _showDeleteConfirmDialog(bank.id!, bank.title);
+                          // 长按题库：弹出操作菜单（编辑/删除）
+                          _showBankActionSheet(bank.id!, bank.title);
                         },
                         child: Padding(
                             padding: const EdgeInsets.all(14.0),

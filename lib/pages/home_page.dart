@@ -8,6 +8,8 @@ import '../data/database_service_factory.dart';
 import '../data/models/question_bank.dart';
 import '../data/models/question.dart';
 import '../utils/json_parser.dart';
+import '../theme/app_theme.dart';
+import '../widgets/empty_state.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -134,54 +136,110 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:
+          AppColors.adaptive(context, AppColors.pageBg, const Color(0xFF121212)),
       appBar: AppBar(
         title: const Text('答题助手'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          // 骨架屏：科目卡形状的呼吸占位
+          ? ListView(
+              padding: const EdgeInsets.all(16.0),
+              children: [
+                for (int i = 0; i < 3; i++)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: SizedBox(
+                      height: 96,
+                      child: SkeletonBox(radius: 16),
+                    ),
+                  ),
+              ],
+            )
           : _questionBanks.isEmpty
-              ? const Center(
-                  child: Text('还没有导入题库，点击右下角按钮导入'),
+              ? EmptyState(
+                  icon: Icons.quiz_outlined,
+                  title: '还没有题库',
+                  message: '导入 JSON 格式的题库文件\n即可开始你的学习之旅',
+                  actionLabel: '导入题库',
+                  onAction: _importQuestionBank,
                 )
               : ListView.builder(
                   padding: const EdgeInsets.all(16.0),
                   itemCount: _getSubjects().length,
                   itemBuilder: (context, index) {
                     String subject = _getSubjects()[index];
-                    // 获取该科目下的题库数量
                     int bankCount = _questionBanks.where((bank) => bank.subject == subject).length;
                     
-                    return Card(
-                      elevation: 4.0,
+                    return Container(
                       margin: const EdgeInsets.only(bottom: 16.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16.0),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.gradientStart,
+                            AppColors.gradientEnd,
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.gradientStart.withOpacity(0.3),
+                            spreadRadius: 0,
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
                       child: InkWell(
                         onTap: () {
-                          // 跳转到科目详情页
                           context.go('/subject/$subject');
                         },
+                        borderRadius: BorderRadius.circular(16.0),
                         child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.all(24.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    subject,
-                                    style: const TextStyle(
-                                      fontSize: 24.0,
-                                      fontWeight: FontWeight.bold,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      subject,
+                                      style: const TextStyle(
+                                        fontSize: 24.0,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 8.0),
-                                  Text(
-                                    '共 $bankCount 个题库',
-                                    style: const TextStyle(fontSize: 16.0, color: Colors.grey),
-                                  ),
-                                ],
+                                    const SizedBox(height: 6.0),
+                                    Text(
+                                      '共 $bankCount 个题库',
+                                      style: TextStyle(
+                                        fontSize: 14.0,
+                                        color: Colors.white.withOpacity(0.9),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                              Container(
+                                padding: const EdgeInsets.all(12.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                                child: const Icon(
+                                  Icons.arrow_forward_ios,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -189,10 +247,11 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                 ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: _importQuestionBank,
         tooltip: '导入题库',
-        child: const Icon(Icons.add),
+        icon: const Icon(Icons.add),
+        label: const Text('导入题库'),
       ),
     );
   }

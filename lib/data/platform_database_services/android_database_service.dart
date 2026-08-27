@@ -8,7 +8,7 @@ import '../models/user_record.dart';
 // Android平台的数据库服务实现（使用sqflite）
 class AndroidDatabaseService implements DatabaseService {
   static const _databaseName = 'answer_helper.db';
-  static const _databaseVersion = 1;
+  static const _databaseVersion = 2;
 
   // 表名
   static const tableQuestionBanks = 'question_banks';
@@ -31,8 +31,17 @@ class AndroidDatabaseService implements DatabaseService {
       path,
       version: _databaseVersion,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
     return _database!;
+  }
+
+  // 数据库升级
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // v2: 题目表新增配图字段（base64存库）
+      await db.execute('ALTER TABLE $tableQuestions ADD COLUMN image_base64 TEXT');
+    }
   }
 
   // 创建表
@@ -62,6 +71,7 @@ class AndroidDatabaseService implements DatabaseService {
         correct_answer TEXT NOT NULL,
         explanation TEXT NOT NULL,
         score INTEGER NOT NULL DEFAULT 1,
+        image_base64 TEXT,
         FOREIGN KEY (bank_id) REFERENCES $tableQuestionBanks (id)
       )
     ''');
@@ -144,6 +154,47 @@ class AndroidDatabaseService implements DatabaseService {
   }
 
   @override
+  Future<int> updateQuestionBank(QuestionBank bank) async {
+    Database db = await _initDatabase();
+    return await db.update(
+      tableQuestionBanks,
+      bank.toMap(),
+      where: 'id = ?',
+      whereArgs: [bank.id],
+    );
+  }
+
+  @override
+  Future<int> updateQuestion(Question question) async {
+    Database db = await _initDatabase();
+    return await db.update(
+      tableQuestions,
+      question.toMap(),
+      where: 'id = ?',
+      whereArgs: [question.id],
+    );
+  }
+
+  @override
+  Future<int> deleteQuestion(int questionId) async {
+    Database db = await _initDatabase();
+    return await db.transaction((txn) async {
+      // 删除该题目的用户学习记录
+      await txn.delete(
+        tableUserRecords,
+        where: 'question_id = ?',
+        whereArgs: [questionId],
+      );
+      // 删除题目本身
+      return await txn.delete(
+        tableQuestions,
+        where: 'id = ?',
+        whereArgs: [questionId],
+      );
+    });
+  }
+
+  @override
   Future<void> batchInsertQuestions(List<Question> questions) async {
     Database db = await _initDatabase();
     Batch batch = db.batch();
@@ -217,14 +268,52 @@ class AndroidDatabaseService implements DatabaseService {
   }
 
   @override
-  Future<int> toggleMarkQuestion(int questionId, bool isMarked) async {
+  Future<UserRecord?> getUserRecord(int questionId) async {
     Database db = await _initDatabase();
-    return await db.update(
+    List<Map<String, dynamic>> maps = await db.query(
       tableUserRecords,
-      {'is_marked': isMarked ? 1 : 0},
       where: 'question_id = ?',
       whereArgs: [questionId],
     );
+    if (maps.isNotEmpty) {
+      return UserRecord.fromMap(maps.first);
+    }
+    return null;
+  }
+
+  @override
+  Future<int> toggleMarkQuestion(int questionId, bool isMarked) async {
+    print('AndroidDatabaseService.toggleMarkQuestion: questionId=$questionId, isMarked=$isMarked');
+    Database db = await _initDatabase();
+    
+    // 先检查是否存在记录
+    List<Map<String, dynamic>> existing = await db.query(
+      tableUserRecords,
+      where: 'question_id = ?',
+      whereArgs: [questionId],
+    );
+    
+    if (existing.isNotEmpty) {
+      print('找到现有记录，更新收藏状态');
+      return await db.update(
+        tableUserRecords,
+        {'is_marked': isMarked ? 1 : 0},
+        where: 'question_id = ?',
+        whereArgs: [questionId],
+      );
+    } else {
+      print('未找到现有记录，创建新记录');
+      return await db.insert(
+        tableUserRecords,
+        {
+          'question_id': questionId,
+          'is_incorrect': 0,
+          'is_marked': isMarked ? 1 : 0,
+          'last_attempted': DateTime.now().toString(),
+          'user_answer': null,
+        },
+      );
+    }
   }
 
   @override

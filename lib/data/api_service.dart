@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../config/app_config.dart';
 
 class ApiService {
-  static const String _baseUrl = 'http://localhost:3000'; // 替换为实际的服务器域名
+  static const String _baseUrl = AppConfig.baseUrl;
 
   // 注册接口
   static Future<Map<String, dynamic>> register({

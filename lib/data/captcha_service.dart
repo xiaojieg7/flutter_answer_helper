@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 
+enum CaptchaRefreshReason {
+  userClosed,
+  verifyFailed,
+  expired,
+  loadFailed,
+}
+
 abstract class CaptchaService {
   Widget buildCaptchaWidget({
-    required Function(Map<String, String>) onCaptchaCompleted,
-    required Function onCaptchaError,
+    required Function(String) onCaptchaCompleted,
+    required Function(CaptchaRefreshReason) onCaptchaRefresh,
+    required Function(String) onError,
   });
   
   Future<void> initialize();

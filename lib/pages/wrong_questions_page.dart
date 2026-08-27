@@ -49,7 +49,13 @@ class _WrongQuestionsPageState extends State<WrongQuestionsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('错题本'),
+        title: const Text(
+          '错题本',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         // 添加返回按钮
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),

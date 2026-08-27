@@ -31,6 +31,8 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+pencil/
+.skill/
 
 # Symbolication related
 app.*.symbols
@@ -42,3 +44,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Configuration files - keep sensitive data out of version control
+lib/config/app_config.dart
+
+# Keep example file in version control
+!lib/config/app_config.example.dart
+
+
