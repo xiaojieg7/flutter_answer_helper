@@ -1,6 +1,10 @@
 this is  answer\_helper app
 It supports one-click import of the question bank. You can use AI to generate the JSON question bank and then import it.
 
+<br />
+
+### 已发布1.0和2.0release  推荐使用2.0功能优化版 兼容旧版题库 新增支持添加图片资料 及优化部分Ui界面
+
 ### 使用ai生成题库
 
 1. 生成题库需要用户手动去使用ai生成，提供相应的题目图片或者各种文档，
@@ -83,79 +87,75 @@ It supports one-click import of the question bank. You can use AI to generate th
 ]
 }
 
-
 ### 题库格式//2.0
 
 新增`image_base64`字段 用于补充题目图片资料 并兼容旧格式
 
 {
-  "schema_version": "2.0",
-  "metadata": {
-    "title": "2026 年 Java 基础模拟题",
-    "subject": "计算机科学",
-    "difficulty": "中等",
-    "total_questions": 5,
-    "created_date": "2026-08-27",
-    "score_mode": "average"
-  },
-  "questions": [
-    {
-      "id": 1,
-      "type": "single",
-      "question": "下列哪个不是 Java 的基本数据类型？",
-      "options": {
-        "A": "int",
-        "B": "double",
-        "C": "String",
-        "D": "boolean"
-      },
-      "correct_answer": "C",
-      "explanation": "String 是引用类型，不是基本数据类型。",
-      "score": 2
-    },
-    {
-      "id": 2,
-      "type": "multiple",
-      "question": "以下属于面向对象三大特性的是哪些？（多选）",
-      "options": {
-        "A": "封装",
-        "B": "继承",
-        "C": "多态",
-        "D": "重载"
-      },
-      "correct_answer": ["A", "B", "C"],
-      "explanation": "封装、继承、多态是面向对象三大特性；重载只是语法特性。",
-      "score": 3,
-      "image_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg..."
-    },
-    {
-      "id": 3,
-      "type": "true_false",
-      "question": "Java 中接口可以包含构造方法。",
-      "correct_answer": "错误",
-      "explanation": "接口不能被实例化，因此不包含构造方法。",
-      "score": 1
-    },
-    {
-      "id": 4,
-      "type": "fill_in_blank",
-      "question": "Java 中所有类的根父类是____。",
-      "correct_answer": "Object",
-      "explanation": "java.lang.Object 是所有类的公共父类。",
-      "score": 2
-    },
-    {
-      "id": 5,
-      "type": "short_answer",
-      "question": "简述 == 与 equals() 的区别。",
-      "correct_answer": "== 比较引用地址；equals() 比较对象内容（可被重写）。",
-      "explanation": "基本类型用 == 比较值；引用类型 == 比较地址，equals 默认同 == 但常被重写。",
-      "score": 5,
-      "image_base64": null
-    }
-  ]
+"schema\_version": "2.0",
+"metadata": {
+"title": "2026 年 Java 基础模拟题",
+"subject": "计算机科学",
+"difficulty": "中等",
+"total\_questions": 5,
+"created\_date": "2026-08-27",
+"score\_mode": "average"
+},
+"questions": \[
+{
+"id": 1,
+"type": "single",
+"question": "下列哪个不是 Java 的基本数据类型？",
+"options": {
+"A": "int",
+"B": "double",
+"C": "String",
+"D": "boolean"
+},
+"correct\_answer": "C",
+"explanation": "String 是引用类型，不是基本数据类型。",
+"score": 2
+},
+{
+"id": 2,
+"type": "multiple",
+"question": "以下属于面向对象三大特性的是哪些？（多选）",
+"options": {
+"A": "封装",
+"B": "继承",
+"C": "多态",
+"D": "重载"
+},
+"correct\_answer": \["A", "B", "C"],
+"explanation": "封装、继承、多态是面向对象三大特性；重载只是语法特性。",
+"score": 3,
+"image\_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg..."
+},
+{
+"id": 3,
+"type": "true\_false",
+"question": "Java 中接口可以包含构造方法。",
+"correct\_answer": "错误",
+"explanation": "接口不能被实例化，因此不包含构造方法。",
+"score": 1
+},
+{
+"id": 4,
+"type": "fill\_in\_blank",
+"question": "Java 中所有类的根父类是\_\_\_\_。",
+"correct\_answer": "Object",
+"explanation": "java.lang.Object 是所有类的公共父类。",
+"score": 2
+},
+{
+"id": 5,
+"type": "short\_answer",
+"question": "简述 == 与 equals() 的区别。",
+"correct\_answer": "== 比较引用地址；equals() 比较对象内容（可被重写）。",
+"explanation": "基本类型用 == 比较值；引用类型 == 比较地址，equals 默认同 == 但常被重写。",
+"score": 5,
+"image\_base64": null
+}
+]
 }
 
-<br />
-
-<br />
